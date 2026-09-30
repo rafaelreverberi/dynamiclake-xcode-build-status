@@ -1,0 +1,16 @@
+name: Validate plugin
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build, test and validate universal package
+        run: python3 -B scripts/build_release.py
+      - name: Verify release checksum
+        working-directory: dist
+        run: shasum -a 256 -c Xcode-Build-Status-*.zip.sha256

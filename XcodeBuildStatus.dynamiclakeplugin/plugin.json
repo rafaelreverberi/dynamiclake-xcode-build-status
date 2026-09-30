@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "identifier": "com.dynamiclake.plugins.xcode-build-status",
+  "name": "Xcode Build Status",
+  "version": "0.1.0",
+  "developerName": "Rafael Reverberi",
+  "executable": "xcode-build-status",
+  "arguments": [],
+  "icon": "icon.png",
+  "autoStart": true,
+  "settings": [
+    {
+      "id": "successDisplaySeconds",
+      "type": "slider",
+      "title": "Success Display Duration",
+      "description": "How long to show a successful build before dismissing it.",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 3,
+      "suffix": "sec",
+      "systemImage": "checkmark.circle.fill",
+      "tint": "green"
+    },
+    {
+      "id": "failureDisplaySeconds",
+      "type": "slider",
+      "title": "Failure Display Duration",
+      "description": "How long to show a failed build before dismissing it.",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5,
+      "suffix": "sec",
+      "systemImage": "xmark.circle.fill",
+      "tint": "red"
+    }
+  ]
+}
