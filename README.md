@@ -4,9 +4,9 @@
 
 A small native **DynamicLake JSON plugin** for builds started in the Xcode GUI. Start a build normally with **⌘B**, Run, Analyze or Archive. No button in the plugin, project edits, scheme scripts or per-project setup are required.
 
-The compact activity is deliberately minimal: a blue `hammer.fill` SF Symbol (or the supplied Liquid Glass Xcode icon) on the left and DynamicLake's native circular progress on the right. When a build completes, the compact slots keep the selected build icon, including when the host minimizes the activity. The Sneak Peek shows a green `checkmark` for success or a red `xmark` for failure, both without circles. Completion opens a short Sneak Peek when the host advertises that feature, then the activity disappears after the selected success/failure duration. Cancellation dismisses the activity without reporting success or failure.
+The compact activity is deliberately minimal: a blue `hammer.fill` SF Symbol (or the supplied Liquid Glass Xcode icon) on the left and DynamicLake's native circular progress on the right. A successful build replaces progress with a green `checkmark` SF Symbol; a failed build uses a red `xmark`, both without circles. Completion opens a short Sneak Peek when the host advertises that feature, then the activity disappears after the selected success/failure duration. Cancellation dismisses the activity without reporting success or failure.
 
-Independent plugin by **Rafael Reverberi**, version **0.1.6**, identifier `com.dynamiclake.plugins.xcode-build-status`. Not affiliated with Apple or DynamicLake. It has not been submitted to DynamicLake Market.
+Independent plugin by **Rafael Reverberi**, version **0.1.5**, identifier `com.dynamiclake.plugins.xcode-build-status`. Not affiliated with Apple or DynamicLake. It has not been submitted to DynamicLake Market.
 
 ## Requirements
 
@@ -19,9 +19,9 @@ No Python, Homebrew, Node, Swift toolchain, external library or companion applic
 
 ## Installation
 
-Download `Xcode-Build-Status-0.1.6.zip` and its `.zip.sha256` from the [GitHub release](https://github.com/rafaelreverberi/dynamiclake-xcode-build-status/releases/tag/v0.1.6).
+Download `Xcode-Build-Status-0.1.5.zip` and its `.zip.sha256` from the [GitHub release](https://github.com/rafaelreverberi/dynamiclake-xcode-build-status/releases/tag/v0.1.5).
 
-1. Verify the download with `shasum -a 256 -c Xcode-Build-Status-0.1.6.zip.sha256` in the download directory.
+1. Verify the download with `shasum -a 256 -c Xcode-Build-Status-0.1.5.zip.sha256` in the download directory.
 2. Extract the ZIP. It contains `XcodeBuildStatus.dynamiclakeplugin` at the top level.
 3. Open DynamicLake **Settings → Plugins → Install Local** and choose that package.
 4. Confirm installation and enable **Xcode Build Status**. Start an ordinary Xcode build.
@@ -38,7 +38,7 @@ The repository also includes the built package for local installation. After cha
 
 There are two native duration sliders and one icon selector. Both success and failure disappear after their selected duration. Settings are read dynamically; kqueue watches both the file and parent for in-place changes and atomic replacement. Duration changes affect the current completion deadline without restarting it. Changing the icon republishes the current activity without reopening its Sneak Peek. Malformed settings retain the last valid values; missing or invalid icon choices use the hammer.
 
-**Xcode App Icon** uses the supplied Liquid Glass Xcode artwork. The 512 × 512 title PNG is kept unchanged. A matching 128 × 128 PNG is read once from the installed package and sent explicitly as `inlineData` with `mimeType: image/png` in both activity slots. This avoids the generic executable icon observed with the host’s `appIcon` source. Up to three copies fit the 64 KB JSON frame budget; there are no runtime rendering or app-icon lookups. Missing or invalid images fall back to the hammer.
+**Xcode App Icon** uses the supplied Liquid Glass Xcode artwork. The 512 × 512 title PNG is kept unchanged. A matching 128 × 128 PNG is read once from the installed package and sent explicitly as `inlineData` with `mimeType: image/png` in both activity slots. This avoids the generic executable icon observed with the host’s `appIcon` source. Both copies fit the 64 KB JSON frame budget; there are no runtime rendering or app-icon lookups. Missing or invalid images fall back to the hammer.
 
 The Xcode App Icon option has a `photo` SF Symbol in the settings menu. There is no preview button. See [ASSETS.md](ASSETS.md) for provenance.
 
@@ -66,7 +66,7 @@ Research did not identify a supported API for attaching to arbitrary GUI builds 
 
 The first comparable build uses **native indeterminate progress**. Successful completed durations train an **EWMA with α = 0.3**. Later builds use elapsed time divided by that estimate, bucketed by a hash of project container, target IDs, configuration, action, scheme command and destination architecture/platform. Exact scheme names are not guessed. The Sneak Peek explicitly says **Estimated Progress** when a determinate estimate is shown.
 
-Progress is monotonic, quantized to one-percent changes, updated at most once per second and capped at **95% until real completion**. Excessive historical variance or a build exceeding 2.5 times its expected duration (with a ten-second minimum) switches back to indeterminate progress. Success immediately becomes the completed state with a green checkmark in the Sneak Peek. Cancellation/failure durations do not train the successful-build estimate.
+Progress is monotonic, quantized to one-percent changes, updated at most once per second and capped at **95% until real completion**. Excessive historical variance or a build exceeding 2.5 times its expected duration (with a ten-second minimum) switches back to indeterminate progress. Success immediately becomes the green checkmark, representing completed work. Cancellation/failure durations do not train the successful-build estimate.
 
 Only up to 64 hashed duration buckets are stored in `~/Library/Application Support/XcodeBuildStatus/history.json`, with private file permissions and no project paths or diagnostics. Entries older than 90 days are pruned when loaded. Nothing mutable is written into the installed package.
 
@@ -94,11 +94,11 @@ swift test
 python3 -B -m unittest discover -s Tests -v
 python3 -B scripts/build_release.py
 cd dist
-shasum -a 256 -c Xcode-Build-Status-0.1.6.zip.sha256
+shasum -a 256 -c Xcode-Build-Status-0.1.5.zip.sha256
 ```
 
 The Swift tests cover settings, EWMA, progress bounds/monotonicity, completion/expiry, stale and duplicate events, rapid builds, cancellation, native components, feature detection, framing, privacy, manifest/request parsing and malformed/UTF-8 SLF data. Native runtime tests cover atomic/in-place settings observation, journal identity and bounded reads. Tests do not need Xcode to be building. Python tests exercise manifest and archive rejection rules.
 
-The release builder runs both suites, cross-builds a universal optimized executable, strips debug information, applies an ad-hoc signature, verifies architecture/signature/permissions, validates the manifest, settings, changelog, PNG dimensions and official size limits, then validates ZIP integrity/top-level structure and executable-bit retention. It writes `dist/Xcode-Build-Status-0.1.6.zip` and its SHA-256 file. The binary is ad-hoc signed, not Developer ID signed or notarized. macOS CI runs the same build and checksum checks with read-only repository permissions.
+The release builder runs both suites, cross-builds a universal optimized executable, strips debug information, applies an ad-hoc signature, verifies architecture/signature/permissions, validates the manifest, settings, changelog, PNG dimensions and official size limits, then validates ZIP integrity/top-level structure and executable-bit retention. It writes `dist/Xcode-Build-Status-0.1.5.zip` and its SHA-256 file. The binary is ad-hoc signed, not Developer ID signed or notarized. macOS CI runs the same build and checksum checks with read-only repository permissions.
 
 See [RELEASING.md](RELEASING.md), [SECURITY.md](SECURITY.md), [CHANGELOG.md](CHANGELOG.md) and [ASSETS.md](ASSETS.md). This repository does not grant a source license, following the reference plugin's current distribution posture. It is public for review; a future Market submission would need a separate decision about its open-source requirement.

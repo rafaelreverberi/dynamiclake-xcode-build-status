@@ -1,7 +1,3 @@
-# 0.1.6 validation scope
-
-Compact completion slots now show the selected identity image; result symbols remain in the Sneak Peek. Active compact progress is unchanged. The JSON API has no separate minimized surface, so this uses the documented compact slots. Tests cover the compact/Sneak Peek split for success/failure and the larger three-image frame budget. All 28 Swift and 7 Python tests passed locally, alongside universal package/archive validation and checksum verification. The actual three-image completion frame is 61,863 bytes, below the 64 KB payload limit. No installation is performed; actual minimized host appearance remains for owner confirmation.
-
 # 0.1.5 validation scope
 
 Removes the preview link and uses photo for the Xcode App Icon settings option. Completion now uses sfSymbol images checkmark (green) and xmark (red) in both right slots. Existing completion-message tests assert exact type/source/symbol/tint and absence of the status component; manifest tests reject the removed preview control. Icon artwork, PNG transport and duration behavior are preserved. All 28 Swift and 7 Python tests passed locally, together with the universal release builder and ZIP checksum verification. No installation is performed; visual appearance remains for owner confirmation after updating.

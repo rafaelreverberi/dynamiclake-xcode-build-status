@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "identifier": "com.dynamiclake.plugins.xcode-build-status",
   "name": "Xcode Build Status",
-  "version": "0.1.6",
+  "version": "0.1.5",
   "developerName": "Rafael Reverberi",
   "executable": "xcode-build-status",
   "arguments": [],

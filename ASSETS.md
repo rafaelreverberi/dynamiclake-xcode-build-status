@@ -12,6 +12,6 @@ Regenerate on macOS:
 python3 scripts/prepare_icon.py
 ```
 
-The runtime uses `XcodeBuildStatus.dynamiclakeplugin/xcode-icon.png`, a faithful 128 × 128 downsample of the title PNG, as explicit `inlineData` with PNG MIME type in both activity slots. It is read once into memory from beside the executable. Each image is limited to 15,500 bytes so up to three copies of base64 data fit the documented 64 KB frame limit. The hammer alternative remains an SF Symbol. No app-icon lookup, runtime rendering or downloads are used.
+The runtime uses `XcodeBuildStatus.dynamiclakeplugin/xcode-icon.png`, a faithful 128 × 128 downsample of the title PNG, as explicit `inlineData` with PNG MIME type in both activity slots. It is read once into memory from beside the executable. Each image is limited to 20,000 bytes so the duplicate base64 data fit the documented 64 KB frame limit. The hammer alternative remains an SF Symbol. No app-icon lookup, runtime rendering or downloads are used.
 
 The original artwork’s author, source license and upstream origin were not provided. No ownership or redistribution license is asserted here. Apple and DynamicLake names identify compatibility and do not imply endorsement. No separate asset or source license is granted by this repository. The package has not been submitted to Market.

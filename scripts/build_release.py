@@ -62,7 +62,7 @@ def validate_package(package: Path, changelog: str) -> dict:
     require(len(icon) <= LIMITS['icon'] and icon.startswith(b'\x89PNG\r\n\x1a\n') and icon[12:16] == b'IHDR', 'Invalid PNG icon')
     require(struct.unpack('>II', icon[16:24]) == (512, 512), 'Icon must be 512 x 512')
     runtime_icon = (package / 'xcode-icon.png').read_bytes()
-    require(len(runtime_icon) <= 15_500 and runtime_icon.startswith(b'\x89PNG\r\n\x1a\n') and
+    require(len(runtime_icon) <= 20_000 and runtime_icon.startswith(b'\x89PNG\r\n\x1a\n') and
             runtime_icon[12:16] == b'IHDR' and struct.unpack('>II', runtime_icon[16:24]) == (128, 128),
             'Invalid or oversized runtime icon')
     return m
