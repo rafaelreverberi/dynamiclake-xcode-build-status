@@ -10,7 +10,7 @@ if CommandLine.arguments.count == 4 && CommandLine.arguments[1] == "--inspect-lo
     } catch { diagnostic("Unsupported or invalid completed log."); exit(1) }
 }
 if CommandLine.arguments.contains("--check") {
-    print("Xcode Build Status 0.1.0: native macOS runtime available")
+    print("Xcode Build Status: native macOS runtime available")
     exit(0)
 }
 guard let path = ProcessInfo.processInfo.environment["DYNAMICLAKE_JSON_SOCKET"], path.hasPrefix("/") else {

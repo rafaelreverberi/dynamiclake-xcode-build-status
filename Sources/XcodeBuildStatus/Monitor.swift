@@ -197,7 +197,7 @@ final class Monitor {
         for var record in records where !p.machine.seen.contains(record.id) {
             guard (record.start >= launched || (p.machine.active?.started ?? now) < launched), record.end <= now + 1 else { p.machine.seen.insert(record.id); continue }
             // A very short build can finish within one FSEvents batch. Still show its real completion.
-            if p.machine.active == nil && p.machine.completed == nil && now - record.end <= 5 {
+            if p.machine.active == nil && record.start >= (p.machine.completedAt ?? launched) && now - record.end <= 5 {
                 _ = p.machine.begin(now: record.start, bucket: "", estimate: nil)
             }
             guard p.machine.accepts(record) else { continue }
@@ -246,8 +246,8 @@ final class Monitor {
         var deadlines: [Double] = []
         for p in projects.values {
             if p.machine.active != nil || p.awaitingUntil != nil { deadlines.append(now + 1) }
-            if let ended = p.machine.completedAt, let result = p.machine.completed {
-                deadlines.append(ended + (result == .success ? settings.success : settings.failure))
+            if let deadline = p.machine.dismissalDeadline(settings: settings) {
+                deadlines.append(deadline)
             }
         }
         guard let next = deadlines.min() else { return }

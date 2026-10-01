@@ -172,10 +172,15 @@ public struct BuildMachine {
         return true
     }
     public mutating func cancel() { active = nil; completed = nil; completedAt = nil; detail = "" }
+    /// Failure remains available on hover until new work or lifecycle cleanup replaces it.
+    /// Only success has a dismissal deadline; failure duration controls automatic presentation.
+    public func dismissalDeadline(settings: Settings) -> Double? {
+        guard completed == .success, let completedAt else { return nil }
+        return completedAt + settings.success
+    }
     public mutating func expire(now: Double, settings: Settings) -> Bool {
-        guard let completedAt, let completed else { return false }
-        let duration = completed == .success ? settings.success : settings.failure
-        if now >= completedAt + duration { cancel(); return true }
+        guard let deadline = dismissalDeadline(settings: settings) else { return false }
+        if now >= deadline { cancel(); return true }
         return false
     }
 }

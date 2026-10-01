@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 — 2026-10-01
+
+- Keep failed build status and diagnostic available on hover until the next build or lifecycle cleanup.
+- Failure duration now controls only automatic Sneak Peek presentation; success dismissal is unchanged.
+- Retained failures have no dismissal timer or repeating idle updates.
+
 ## 0.1.0 — 2026-09-30
 
 - Initial native Swift JSON plugin with event-driven Xcode GUI build observation.

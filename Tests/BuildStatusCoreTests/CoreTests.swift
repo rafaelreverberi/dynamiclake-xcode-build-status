@@ -61,14 +61,32 @@ final class CoreTests: XCTestCase {
         XCTAssertFalse(m.expire(now:112.99,settings:Settings()))
         XCTAssertTrue(m.expire(now:113,settings:Settings())); XCTAssertNil(m.completed)
     }
-    func testFailureDynamicDurationDoesNotRestartTimer() {
+    func testFailureRemainsAvailableOnHoverWithoutDismissalTimer() {
         var m = BuildMachine(launched:90); _ = m.begin(now:100,bucket:"a",estimate:nil)
         XCTAssertTrue(m.finish(record(result:.failed),now:110,error:"Cannot find x"))
         XCTAssertEqual(m.completed,.failed); XCTAssertEqual(m.detail,"Cannot find x")
         XCTAssertFalse(m.finish(record(result:.failed),now:114))
         XCTAssertEqual(m.completedAt,110)
         let changed = Settings(values:["failureDisplaySeconds":2])
-        XCTAssertTrue(m.expire(now:112,settings:changed))
+        XCTAssertNil(m.dismissalDeadline(settings:changed))
+        XCTAssertFalse(m.expire(now:112,settings:changed))
+        XCTAssertFalse(m.expire(now:86_510,settings:Settings()))
+        XCTAssertEqual(m.completed,.failed); XCTAssertEqual(m.detail,"Cannot find x")
+    }
+    func testNewBuildReplacesRetainedFailure() {
+        var m = BuildMachine(launched:90); _ = m.begin(now:100,bucket:"a",estimate:nil)
+        _ = m.finish(record(result:.failed),now:110,error:"Cannot find x")
+        XCTAssertTrue(m.begin(now:1000,bucket:"b",estimate:10))
+        XCTAssertNotNil(m.active); XCTAssertNil(m.completedAt); XCTAssertNil(m.completed)
+        XCTAssertEqual(m.detail,"")
+        XCTAssertNil(m.dismissalDeadline(settings:Settings()))
+        XCTAssertFalse(m.expire(now:2000,settings:Settings()))
+    }
+    func testRetainedFailurePayloadKeepsDiagnosticWithoutAutoPresentation() {
+        let message = Messages.activity(id:"a",create:false,result:.failed,detail:"Cannot find x",features:[])
+        XCTAssertEqual(surfaces(message)["sneakPeek"]?["center"]?["text"] as? String,"Build Failed — Cannot find x")
+        XCTAssertEqual(surfaces(message)["compactLiveActivity"]?["rightSlot"]?["status"] as? String,"failed")
+        XCTAssertNil(message["presentSneakPeek"])
     }
     func testRapidBuildPrecedesPreviousCompletion() {
         var m = BuildMachine(launched:90); _ = m.begin(now:100,bucket:"a",estimate:nil)

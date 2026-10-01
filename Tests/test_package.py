@@ -18,7 +18,7 @@ class PackageTests(unittest.TestCase):
         self.manifest = json.loads((builder.PACKAGE / 'plugin.json').read_bytes())
 
     def validate(self, m):
-        return builder.validate_manifest(json.dumps(m).encode(), '## 0.1.0 — release')
+        return builder.validate_manifest(json.dumps(m).encode(), '## '+m['version']+' — release')
 
     def test_shipping_manifest(self):
         self.validate(self.manifest)

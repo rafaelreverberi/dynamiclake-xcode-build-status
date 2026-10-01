@@ -1,3 +1,7 @@
+# 0.1.1 validation scope
+
+The 0.1.0 observations below remain historical evidence. Version 0.1.1 intentionally changes failure dismissal: failure duration controls automatic presentation only, while the failed activity and its diagnostic remain available on hover until replaced or lifecycle cleanup. Regression tests cover retention, absence of a failure dismissal deadline and replacement by a new build. All 24 Swift tests and 5 Python tests passed locally, and the universal release archive passed package validation. The 0.1.1 update was installed through DynamicLake’s normal update dialog; installed manifest, icon and executable hashes match the release package. Native hover rendering still requires visual confirmation.
+
 # Validation record
 
 Local validation on 2026-09-30, Apple Silicon macOS 27, Xcode **27.0 (27A266a)**, DynamicLake Pro **1.9.7.5**. Evidence is separated below; a socket payload is not proof of on-screen rendering.
