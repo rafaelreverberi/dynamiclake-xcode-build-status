@@ -1,3 +1,7 @@
+# 0.1.2 validation scope
+
+Version 0.1.2 restores timed failure dismissal and adds the live Build Icon selector. The icon is obtained from the installed Xcode app without redistributing Apple artwork. Regression tests cover failure deadlines, icon settings/fallback, native rendering/transparency, inline-image/frame limits and the installed Xcode icon when available. Local validation passed **28 Swift tests and 6 Python tests**, universal build/package checks and ZIP checksum verification. The local Xcode 27 app icon rendered to a 128 px PNG of **18,606 bytes**, within the duplicate-slot frame budget. This update is packaged for owner installation; the installed 0.1.1 package is intentionally untouched. Visual icon selection and real-host timing after installation still require user confirmation.
+
 # 0.1.1 validation scope
 
 The 0.1.0 observations below remain historical evidence. Version 0.1.1 intentionally changes failure dismissal: failure duration controls automatic presentation only, while the failed activity and its diagnostic remain available on hover until replaced or lifecycle cleanup. Regression tests cover retention, absence of a failure dismissal deadline and replacement by a new build. All 24 Swift tests and 5 Python tests passed locally, and the universal release archive passed package validation. The 0.1.1 update was installed through DynamicLake’s normal update dialog; installed manifest, icon and executable hashes match the release package. Native hover rendering still requires visual confirmation.

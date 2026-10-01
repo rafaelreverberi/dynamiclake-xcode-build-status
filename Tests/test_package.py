@@ -22,7 +22,7 @@ class PackageTests(unittest.TestCase):
 
     def test_shipping_manifest(self):
         self.validate(self.manifest)
-        self.assertEqual([s['default'] for s in self.manifest['settings']], [3, 5])
+        self.assertEqual([s['default'] for s in self.manifest['settings']], [3, 5, 'Hammer (SF Symbol)'])
 
     def test_wrong_identifier_version_schema_developer(self):
         for key, value in [('identifier','wrong'), ('version',''), ('schemaVersion',2), ('developerName','wrong'), ('executable','../outside')]:
@@ -36,6 +36,11 @@ class PackageTests(unittest.TestCase):
             with self.assertRaises(ValueError): self.validate(m)
         m = copy.deepcopy(self.manifest); m['settings'].append(m['settings'][0])
         with self.assertRaises(ValueError): self.validate(m)
+
+    def test_invalid_icon_choices(self):
+        for key, value in [('type', 'switch'), ('default', 'Unknown'), ('options', ['Hammer'])]:
+            m = copy.deepcopy(self.manifest); m['settings'][2][key] = value
+            with self.assertRaises(ValueError): self.validate(m)
 
     def test_changelog_required(self):
         with self.assertRaises(ValueError): builder.validate_manifest(json.dumps(self.manifest).encode(), 'empty')

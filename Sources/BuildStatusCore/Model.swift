@@ -4,12 +4,19 @@ import CryptoKit
 
 public let pluginIdentifier = "com.dynamiclake.plugins.xcode-build-status"
 
+public enum IconStyle: String {
+    case hammer = "Hammer (SF Symbol)"
+    case xcode = "Xcode App Icon"
+}
+
 public struct Settings: Equatable {
     public var success: Double = 3
     public var failure: Double = 5
+    public var iconStyle: IconStyle = .hammer
     public init(values: [String: Any] = [:]) {
         success = Self.duration(values["successDisplaySeconds"], fallback: 3)
         failure = Self.duration(values["failureDisplaySeconds"], fallback: 5)
+        iconStyle = (values["iconStyle"] as? String).flatMap(IconStyle.init(rawValue:)) ?? .hammer
     }
     public static func duration(_ value: Any?, fallback: Double) -> Double {
         guard let number = value as? NSNumber,
@@ -172,11 +179,10 @@ public struct BuildMachine {
         return true
     }
     public mutating func cancel() { active = nil; completed = nil; completedAt = nil; detail = "" }
-    /// Failure remains available on hover until new work or lifecycle cleanup replaces it.
-    /// Only success has a dismissal deadline; failure duration controls automatic presentation.
+    /// Both completion states expire using their selected duration, anchored to actual completion.
     public func dismissalDeadline(settings: Settings) -> Double? {
-        guard completed == .success, let completedAt else { return nil }
-        return completedAt + settings.success
+        guard let completed, let completedAt else { return nil }
+        return completedAt + (completed == .success ? settings.success : settings.failure)
     }
     public mutating func expire(now: Double, settings: Settings) -> Bool {
         guard let deadline = dismissalDeadline(settings: settings) else { return false }

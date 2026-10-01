@@ -61,32 +61,54 @@ final class CoreTests: XCTestCase {
         XCTAssertFalse(m.expire(now:112.99,settings:Settings()))
         XCTAssertTrue(m.expire(now:113,settings:Settings())); XCTAssertNil(m.completed)
     }
-    func testFailureRemainsAvailableOnHoverWithoutDismissalTimer() {
+    func testFailureDynamicDurationAndCleanup() {
         var m = BuildMachine(launched:90); _ = m.begin(now:100,bucket:"a",estimate:nil)
         XCTAssertTrue(m.finish(record(result:.failed),now:110,error:"Cannot find x"))
         XCTAssertEqual(m.completed,.failed); XCTAssertEqual(m.detail,"Cannot find x")
         XCTAssertFalse(m.finish(record(result:.failed),now:114))
         XCTAssertEqual(m.completedAt,110)
         let changed = Settings(values:["failureDisplaySeconds":2])
-        XCTAssertNil(m.dismissalDeadline(settings:changed))
-        XCTAssertFalse(m.expire(now:112,settings:changed))
-        XCTAssertFalse(m.expire(now:86_510,settings:Settings()))
-        XCTAssertEqual(m.completed,.failed); XCTAssertEqual(m.detail,"Cannot find x")
+        XCTAssertEqual(m.dismissalDeadline(settings:changed),112)
+        XCTAssertFalse(m.expire(now:111.99,settings:changed))
+        XCTAssertTrue(m.expire(now:112,settings:changed))
+        XCTAssertNil(m.completed); XCTAssertNil(m.completedAt); XCTAssertEqual(m.detail,"")
     }
-    func testNewBuildReplacesRetainedFailure() {
+    func testNewBuildReplacesFailure() {
         var m = BuildMachine(launched:90); _ = m.begin(now:100,bucket:"a",estimate:nil)
         _ = m.finish(record(result:.failed),now:110,error:"Cannot find x")
-        XCTAssertTrue(m.begin(now:1000,bucket:"b",estimate:10))
+        XCTAssertTrue(m.begin(now:111,bucket:"b",estimate:10))
         XCTAssertNotNil(m.active); XCTAssertNil(m.completedAt); XCTAssertNil(m.completed)
         XCTAssertEqual(m.detail,"")
         XCTAssertNil(m.dismissalDeadline(settings:Settings()))
         XCTAssertFalse(m.expire(now:2000,settings:Settings()))
     }
-    func testRetainedFailurePayloadKeepsDiagnosticWithoutAutoPresentation() {
+    func testFailurePayloadKeepsDiagnosticWithoutAutoPresentation() {
         let message = Messages.activity(id:"a",create:false,result:.failed,detail:"Cannot find x",features:[])
         XCTAssertEqual(surfaces(message)["sneakPeek"]?["center"]?["text"] as? String,"Build Failed — Cannot find x")
         XCTAssertEqual(surfaces(message)["compactLiveActivity"]?["rightSlot"]?["status"] as? String,"failed")
         XCTAssertNil(message["presentSneakPeek"])
+    }
+    func testIconSettingDefaultsAndInvalidValues() {
+        XCTAssertEqual(Settings().iconStyle,.hammer)
+        XCTAssertEqual(Settings(values:["iconStyle":"Xcode App Icon"]).iconStyle,.xcode)
+        for invalid: Any in ["unknown",true,42] {
+            XCTAssertEqual(Settings(values:["iconStyle":invalid]).iconStyle,.hammer)
+        }
+    }
+    func testInlineIconPayloadAndFrameBudget() throws {
+        var png = Data([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a])
+        png.append(Data(repeating:0,count:Messages.maximumIconBytes-png.count))
+        let message = Messages.activity(id:"a",create:true,result:.failed,detail:String(repeating:"x",count:160),iconPNG:png)
+        let image = surfaces(message)["compactLiveActivity"]!["leftSlot"]!
+        XCTAssertEqual(image["source"] as? String,"inlineData")
+        XCTAssertEqual(image["mimeType"] as? String,"image/png")
+        XCTAssertNil(image["tint"])
+        XCTAssertEqual(Data(base64Encoded:image["base64Data"] as! String),png)
+        XCTAssertEqual(surfaces(message)["sneakPeek"]?["leftSlot"]?["base64Data"] as? String,image["base64Data"] as? String)
+        XCTAssertLessThanOrEqual(try Messages.frame(message).count,64_004)
+        png.append(0)
+        XCTAssertEqual(Messages.leftImage(iconPNG:png)["source"] as? String,"sfSymbol")
+        XCTAssertEqual(Messages.leftImage(iconPNG:Data("invalid".utf8))["source"] as? String,"sfSymbol")
     }
     func testRapidBuildPrecedesPreviousCompletion() {
         var m = BuildMachine(launched:90); _ = m.begin(now:100,bucket:"a",estimate:nil)

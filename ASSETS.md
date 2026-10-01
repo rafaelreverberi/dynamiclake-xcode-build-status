@@ -13,4 +13,4 @@ Regenerate on macOS with:
 swift assets/render_icon.swift XcodeBuildStatus.dynamiclakeplugin/icon.png
 ```
 
-The runtime uses DynamicLake's documented `sfSymbol` image component with `hammer.fill`; no SF Symbol artwork is bundled in the package. Apple and DynamicLake names identify compatibility and do not imply endorsement. This file grants no separate asset or source license.
+The default runtime icon uses DynamicLake's documented `sfSymbol` component with `hammer.fill`; no SF Symbol artwork is bundled. The optional **Xcode App Icon** is read locally using `NSWorkspace.icon(forFile:)` from the running or macOS-registered Xcode installation. It is rendered as a transparent PNG and cached in memory, never written into the package or redistributed. On Xcode 27 this uses its current app icon. Apple retains ownership of that artwork. Inline images are capped at 20,000 bytes so both UI slots fit the documented 64 KB framed JSON budget (also below the 48 KB decoded-image limit). Apple and DynamicLake names identify compatibility and do not imply endorsement. This file grants no separate asset or source license.

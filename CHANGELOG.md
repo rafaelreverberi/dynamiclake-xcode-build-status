@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 — 2026-10-01
+
+- Restore automatic failure dismissal after the selected duration.
+- Add a live Build Icon selector: existing hammer SF Symbol or the official icon from the local Xcode installation, including Xcode 27.
+- Cache locally rendered transparent icons in memory; preserve proportions and bound duplicate inline images to the frame budget.
+
 ## 0.1.1 — 2026-10-01
 
 - Keep failed build status and diagnostic available on hover until the next build or lifecycle cleanup.

@@ -4,9 +4,9 @@
 
 A small native **DynamicLake JSON plugin** for builds started in the Xcode GUI. Start a build normally with **⌘B**, Run, Analyze or Archive. No button in the plugin, project edits, scheme scripts or per-project setup are required.
 
-The compact activity is deliberately minimal: a blue `hammer.fill` SF Symbol on the left and DynamicLake's native circular progress on the right. A successful build replaces progress with a green native success status; a failed build uses the red failed status. Completion opens a short Sneak Peek when the host advertises that feature, then successful activities disappear. Failed activities remain available on hover until the next build, Xcode quits, or the plugin restarts. Cancellation dismisses the activity without reporting success or failure.
+The compact activity is deliberately minimal: a blue `hammer.fill` SF Symbol (or the selected local Xcode app icon) on the left and DynamicLake's native circular progress on the right. A successful build replaces progress with a green native success status; a failed build uses the red failed status. Completion opens a short Sneak Peek when the host advertises that feature, then the activity disappears after the selected success/failure duration. Cancellation dismisses the activity without reporting success or failure.
 
-Independent plugin by **Rafael Reverberi**, version **0.1.1**, identifier `com.dynamiclake.plugins.xcode-build-status`. Not affiliated with Apple or DynamicLake. It has not been submitted to DynamicLake Market.
+Independent plugin by **Rafael Reverberi**, version **0.1.2**, identifier `com.dynamiclake.plugins.xcode-build-status`. Not affiliated with Apple or DynamicLake. It has not been submitted to DynamicLake Market.
 
 ## Requirements
 
@@ -19,9 +19,9 @@ No Python, Homebrew, Node, Swift toolchain, external library or companion applic
 
 ## Installation
 
-Download `Xcode-Build-Status-0.1.1.zip` and its `.zip.sha256` from the [GitHub release](https://github.com/rafaelreverberi/dynamiclake-xcode-build-status/releases/tag/v0.1.1).
+Download `Xcode-Build-Status-0.1.2.zip` and its `.zip.sha256` from the [GitHub release](https://github.com/rafaelreverberi/dynamiclake-xcode-build-status/releases/tag/v0.1.2).
 
-1. Verify the download with `shasum -a 256 -c Xcode-Build-Status-0.1.1.zip.sha256` in the download directory.
+1. Verify the download with `shasum -a 256 -c Xcode-Build-Status-0.1.2.zip.sha256` in the download directory.
 2. Extract the ZIP. It contains `XcodeBuildStatus.dynamiclakeplugin` at the top level.
 3. Open DynamicLake **Settings → Plugins → Install Local** and choose that package.
 4. Confirm installation and enable **Xcode Build Status**. Start an ordinary Xcode build.
@@ -33,9 +33,14 @@ The repository also includes the built package for local installation. After cha
 | Setting | Range | Default |
 | --- | --- | --- |
 | Success Display Duration | 1–10 sec, step 1 | 3 sec |
-| Failure Sneak Peek Duration | 1–10 sec, step 1 | 5 sec |
+| Failure Display Duration | 1–10 sec, step 1 | 5 sec |
+| Build Icon | Hammer (SF Symbol) / Xcode App Icon | Hammer (SF Symbol) |
 
-The only two custom settings are native sliders. They are read from the host's settings file. kqueue observes both the file and its parent, covering in-place changes and atomic replacement. The success duration controls dismissal; changing it affects the current success deadline without restarting it. The failure duration controls only the initial automatic Sneak Peek presentation. Its error content stays available on hover afterward, with no repeating timer or automatic reopening. Malformed settings retain the last valid values; missing settings use defaults. Older hosts still receive completion Sneak Peek content on hover, but automatic presentation is omitted unless `DYNAMICLAKE_PLUGIN_FEATURES` contains `presentSneakPeek`.
+There are two native duration sliders and one icon selector. Both success and failure disappear after their selected duration. Settings are read dynamically; kqueue watches both the file and parent for in-place changes and atomic replacement. Duration changes affect the current completion deadline without restarting it. Changing the icon republishes the current activity without reopening its Sneak Peek. Malformed settings retain the last valid values; missing or invalid icon choices use the hammer.
+
+**Xcode App Icon** reads the icon of the running Xcode app (or the installed app registered with macOS) through NSWorkspace. On a Mac with Xcode 27, this uses that installed app’s current icon, including its macOS 27 appearance. It is cached, preserves transparency and proportions, and is sent as bounded inline PNG data. No Apple artwork is bundled or downloaded. If the icon cannot be read, the hammer remains available. Earlier Xcode installations display their own installed icon; the plugin does not substitute a downloaded version.
+
+Older hosts still receive completion Sneak Peek content on hover, but automatic presentation is omitted unless `DYNAMICLAKE_PLUGIN_FEATURES` contains `presentSneakPeek`.
 
 ## Build observation
 
@@ -87,11 +92,11 @@ swift test
 python3 -B -m unittest discover -s Tests -v
 python3 -B scripts/build_release.py
 cd dist
-shasum -a 256 -c Xcode-Build-Status-0.1.1.zip.sha256
+shasum -a 256 -c Xcode-Build-Status-0.1.2.zip.sha256
 ```
 
 The Swift tests cover settings, EWMA, progress bounds/monotonicity, completion/expiry, stale and duplicate events, rapid builds, cancellation, native components, feature detection, framing, privacy, manifest/request parsing and malformed/UTF-8 SLF data. Native runtime tests cover atomic/in-place settings observation, journal identity and bounded reads. Tests do not need Xcode to be building. Python tests exercise manifest and archive rejection rules.
 
-The release builder runs both suites, cross-builds a universal optimized executable, strips debug information, applies an ad-hoc signature, verifies architecture/signature/permissions, validates the manifest, settings, changelog, PNG dimensions and official size limits, then validates ZIP integrity/top-level structure and executable-bit retention. It writes `dist/Xcode-Build-Status-0.1.1.zip` and its SHA-256 file. The binary is ad-hoc signed, not Developer ID signed or notarized. macOS CI runs the same build and checksum checks with read-only repository permissions.
+The release builder runs both suites, cross-builds a universal optimized executable, strips debug information, applies an ad-hoc signature, verifies architecture/signature/permissions, validates the manifest, settings, changelog, PNG dimensions and official size limits, then validates ZIP integrity/top-level structure and executable-bit retention. It writes `dist/Xcode-Build-Status-0.1.2.zip` and its SHA-256 file. The binary is ad-hoc signed, not Developer ID signed or notarized. macOS CI runs the same build and checksum checks with read-only repository permissions.
 
 See [RELEASING.md](RELEASING.md), [SECURITY.md](SECURITY.md), [CHANGELOG.md](CHANGELOG.md) and [ASSETS.md](ASSETS.md). This repository does not grant a source license, following the reference plugin's current distribution posture. It is public for review; a future Market submission would need a separate decision about its open-source requirement.

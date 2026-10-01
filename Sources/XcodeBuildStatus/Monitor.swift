@@ -25,6 +25,7 @@ final class Monitor {
     private let client: SocketClient
     private let launched = Date().timeIntervalSince1970
     private let history = HistoryStore()
+    private let appIcon = XcodeAppIcon()
     private let features = Messages.features(ProcessInfo.processInfo.environment["DYNAMICLAKE_PLUGIN_FEATURES"])
     private var projects: [String: Project] = [:]
     private var watcher: FileEvents?
@@ -68,6 +69,7 @@ final class Monitor {
     }
     func stop() { for p in projects.values where p.published { client.send(Messages.dismiss(id: p.id)) } }
     private func configure() throws {
+        appIcon.invalidate()
         let base = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Developer/Xcode")
         roots = [base.appendingPathComponent("DerivedData")]
         // Read Xcode's global custom location; no project edits or scheme actions.
@@ -231,13 +233,15 @@ final class Monitor {
         }
         // Quantize to one percent and emit at most one progress update per second.
         if let v = value { value = floor(v * 100) / 100 }
-        let signature = "\(p.machine.completed?.rawValue ?? "active")|\(value.map(String.init(describing:)) ?? "indeterminate")|\(p.machine.detail)"
+        let iconPNG = settings.iconStyle == .xcode ? appIcon.png() : nil
+        let iconSignature = iconPNG == nil ? "hammer" : appIcon.signature
+        let signature = "\(iconSignature)|\(p.machine.completed?.rawValue ?? "active")|\(value.map(String.init(describing:)) ?? "indeterminate")|\(p.machine.detail)"
         guard completion || signature != p.signature else { return }
-        if p.machine.active != nil && p.published && p.signature.hasPrefix("active|") && now - p.lastProgressAt < 1 { return }
+        if p.machine.active != nil && p.published && p.signature.contains("|active|") && now - p.lastProgressAt < 1 { return }
         p.lastProgressAt = now
         let duration = p.machine.completed == .failed ? settings.failure : settings.success
         client.send(Messages.activity(id: p.id, create: !p.published, result: p.machine.completed, value: value,
-                                     detail: p.machine.detail, duration: duration, features: completion ? features : []))
+                                     detail: p.machine.detail, duration: duration, features: completion ? features : [], iconPNG: iconPNG))
         p.published = true; p.signature = signature
     }
     private func scheduleTimer() {

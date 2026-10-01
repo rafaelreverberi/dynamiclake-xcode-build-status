@@ -1,5 +1,7 @@
 import XCTest
 import Foundation
+import AppKit
+import BuildStatusCore
 @testable import XcodeBuildStatus
 
 final class RuntimeTests: XCTestCase {
@@ -37,6 +39,33 @@ final class RuntimeTests: XCTestCase {
         let link = root.appendingPathComponent("link")
         try FileManager.default.createSymbolicLink(at:link,withDestinationURL:journal)
         XCTAssertNil(journalIdentity(link))
+    }
+    func testIconRendererPreservesTransparencyAndBounds() throws {
+        let image = NSImage(size:NSSize(width:80,height:40),flipped:false) { _ in
+            NSColor.blue.setFill(); NSRect(x:0,y:0,width:80,height:40).fill(); return true
+        }
+        let png = try XCTUnwrap(XcodeAppIcon.render(image))
+        XCTAssertLessThanOrEqual(png.count,Messages.maximumIconBytes)
+        let bitmap = try XCTUnwrap(NSBitmapImageRep(data:png))
+        XCTAssertEqual(bitmap.pixelsWide,128); XCTAssertEqual(bitmap.pixelsHigh,128)
+        XCTAssertTrue(bitmap.hasAlpha)
+        XCTAssertEqual(bitmap.colorAt(x:0,y:0)?.alphaComponent,0)
+        XCTAssertEqual(bitmap.colorAt(x:64,y:64)?.alphaComponent,1)
+        XCTAssertNil(XcodeAppIcon.render(NSImage(size:.zero)))
+    }
+    func testInstalledXcodeIconWhenAvailable() throws {
+        guard NSWorkspace.shared.urlForApplication(withBundleIdentifier:"com.apple.dt.Xcode") != nil else {
+            throw XCTSkip("Xcode app not installed")
+        }
+        let cache = XcodeAppIcon()
+        let png = try XCTUnwrap(cache.png())
+        XCTAssertLessThanOrEqual(png.count,Messages.maximumIconBytes)
+        XCTAssertEqual(cache.png(),png)
+        XCTAssertNotEqual(cache.signature,"hammer")
+        let message = Messages.activity(id:"probe",create:true,iconPNG:png)
+        XCTAssertLessThan(try Messages.frame(message).count,64_004)
+        print("Local Xcode app icon: \(png.count) PNG bytes, \(NSBitmapImageRep(data:png)!.pixelsWide) px")
+        cache.invalidate(); XCTAssertEqual(cache.signature,"hammer")
     }
     func testBoundedReadRejectsOversizedFiles() throws {
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
