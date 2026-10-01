@@ -1,16 +1,17 @@
 # Asset provenance
 
-`XcodeBuildStatus.dynamiclakeplugin/icon.png` is an original geometric workshop hammer and checkmark composition created for this repository. Its editable, deterministic AppKit drawing source is `assets/render_icon.swift`.
+The owner supplied `Xcode__Liquid_Glass__B7GcnoIhKy_icns-a7272c9e5e.icns` on 2026-10-01 and explicitly requested it as the plugin title image and the image behind the **Xcode App Icon** setting. An unchanged copy is retained as `assets/xcode-liquid-glass.icns`.
 
-- 512 × 512 PNG, opaque square background.
-- Blue diagonal handle, pale geometric hammer head and a green completion badge.
-- No baked rounded outer corners; DynamicLake applies its own mask.
-- No Apple Xcode artwork, application icon or rasterized Apple assets were copied.
+Source SHA-256: `d609c426a499760f436a4b682ebc16e135f3db9029256381ea1bcd91702c69db`.
 
-Regenerate on macOS with:
+`XcodeBuildStatus.dynamiclakeplugin/icon.png` is its 512 × 512 PNG conversion. Transparency, composition and the source’s existing rounded shape are preserved; no additional mask, background or corners are drawn. The conversion does not redesign the supplied image. This owner-requested asset replaces the original workshop illustration and the previous lookup of the locally installed Xcode app icon.
+
+Regenerate on macOS:
 
 ```sh
-swift assets/render_icon.swift XcodeBuildStatus.dynamiclakeplugin/icon.png
+python3 scripts/prepare_icon.py
 ```
 
-The default runtime icon uses DynamicLake's documented `sfSymbol` component with `hammer.fill`; no SF Symbol artwork is bundled. The optional **Xcode App Icon** is read locally using `NSWorkspace.icon(forFile:)` from the running or macOS-registered Xcode installation. It is rendered as a transparent PNG and cached in memory, never written into the package or redistributed. On Xcode 27 this uses its current app icon. Apple retains ownership of that artwork. Inline images are capped at 20,000 bytes so both UI slots fit the documented 64 KB framed JSON budget (also below the 48 KB decoded-image limit). Apple and DynamicLake names identify compatibility and do not imply endorsement. This file grants no separate asset or source license.
+The runtime uses the documented DynamicLake `appIcon` component for this selection; it references the plugin’s own title icon in both compact and Sneak Peek slots. The alternate hammer uses `sfSymbol` with `hammer.fill`. No runtime icon reads, downloads, rasterization or inline PNG encoding are needed.
+
+The original artwork’s author, source license and upstream origin were not provided. No ownership or redistribution license is asserted here. Apple and DynamicLake names identify compatibility and do not imply endorsement. No separate asset or source license is granted by this repository. The package has not been submitted to Market.

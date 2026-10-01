@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 — 2026-10-01
+
+- Use the owner-supplied Liquid Glass Xcode icon as the plugin title image.
+- Xcode App Icon selection now uses the same bundled icon through DynamicLake’s native appIcon component.
+- Remove local Xcode icon lookup, runtime rendering and duplicate inline image payloads.
+
 ## 0.1.2 — 2026-10-01
 
 - Restore automatic failure dismissal after the selected duration.

@@ -1,13 +1,8 @@
 import Foundation
 
 public enum Messages {
-    // The same image occupies two slots. Keep their combined base64 data inside the 64 KB frame limit.
-    public static let maximumIconBytes = 20_000
-    public static func leftImage(iconPNG: Data?) -> [String: Any] {
-        if let data = iconPNG, data.count <= maximumIconBytes,
-           data.starts(with: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]) {
-            return ["type": "image", "source": "inlineData", "mimeType": "image/png", "base64Data": data.base64EncodedString()]
-        }
+    public static func leftImage(style: IconStyle) -> [String: Any] {
+        if style == .xcode { return ["type": "image", "source": "appIcon"] }
         return ["type": "image", "source": "sfSymbol", "systemImage": "hammer.fill", "tint": "blue"]
     }
     public static func features(_ string: String?) -> Set<String> {
@@ -17,8 +12,8 @@ public enum Messages {
         ["schemaVersion": 1, "type": "dismiss", "activityID": id, "requestID": UUID().uuidString]
     }
     public static func activity(id: String, create: Bool, result: ResultState? = nil, value: Double? = nil,
-                                detail: String = "", duration: Double = 3, features: Set<String> = [], iconPNG: Data? = nil) -> [String: Any] {
-        let icon = leftImage(iconPNG: iconPNG)
+                                detail: String = "", duration: Double = 3, features: Set<String> = [], iconStyle: IconStyle = .hammer) -> [String: Any] {
+        let icon = leftImage(style: iconStyle)
         var right: [String: Any] = ["type": "progress", "tint": "blue"]
         var text = value == nil ? "Building" : "Building — Estimated Progress"
         if result == .success || result == .failed {

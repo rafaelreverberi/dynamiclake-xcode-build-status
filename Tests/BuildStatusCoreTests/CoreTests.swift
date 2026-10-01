@@ -95,20 +95,14 @@ final class CoreTests: XCTestCase {
             XCTAssertEqual(Settings(values:["iconStyle":invalid]).iconStyle,.hammer)
         }
     }
-    func testInlineIconPayloadAndFrameBudget() throws {
-        var png = Data([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a])
-        png.append(Data(repeating:0,count:Messages.maximumIconBytes-png.count))
-        let message = Messages.activity(id:"a",create:true,result:.failed,detail:String(repeating:"x",count:160),iconPNG:png)
+    func testSuppliedPackageIconUsedInBothSlots() throws {
+        let message = Messages.activity(id:"a",create:true,result:.failed,detail:"Cannot find x",iconStyle:.xcode)
         let image = surfaces(message)["compactLiveActivity"]!["leftSlot"]!
-        XCTAssertEqual(image["source"] as? String,"inlineData")
-        XCTAssertEqual(image["mimeType"] as? String,"image/png")
-        XCTAssertNil(image["tint"])
-        XCTAssertEqual(Data(base64Encoded:image["base64Data"] as! String),png)
-        XCTAssertEqual(surfaces(message)["sneakPeek"]?["leftSlot"]?["base64Data"] as? String,image["base64Data"] as? String)
-        XCTAssertLessThanOrEqual(try Messages.frame(message).count,64_004)
-        png.append(0)
-        XCTAssertEqual(Messages.leftImage(iconPNG:png)["source"] as? String,"sfSymbol")
-        XCTAssertEqual(Messages.leftImage(iconPNG:Data("invalid".utf8))["source"] as? String,"sfSymbol")
+        XCTAssertEqual(image["source"] as? String,"appIcon")
+        XCTAssertNil(image["tint"]); XCTAssertNil(image["base64Data"])
+        XCTAssertEqual(surfaces(message)["sneakPeek"]?["leftSlot"]?["source"] as? String,"appIcon")
+        XCTAssertLessThan(try Messages.frame(message).count,2_000)
+        XCTAssertEqual(Messages.leftImage(style:.hammer)["systemImage"] as? String,"hammer.fill")
     }
     func testRapidBuildPrecedesPreviousCompletion() {
         var m = BuildMachine(launched:90); _ = m.begin(now:100,bucket:"a",estimate:nil)

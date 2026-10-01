@@ -1,3 +1,7 @@
+# 0.1.3 validation scope
+
+The supplied ICNS is preserved unchanged in assets and converted to a 512 px transparent PNG. Both activity slots reference that package icon through `source: appIcon`; the existing hammer option remains available. Native icon lookup/rendering is removed. All **26 Swift tests and 6 Python tests** passed locally. Universal build/package validation and checksum verification passed; repeated source-to-PNG conversion produced identical bytes and the retained ICNS matches the supplied file. This package is built for owner installation; the installed plugin is intentionally untouched. Native visual confirmation remains for the owner after updating.
+
 # 0.1.2 validation scope
 
 Version 0.1.2 restores timed failure dismissal and adds the live Build Icon selector. The icon is obtained from the installed Xcode app without redistributing Apple artwork. Regression tests cover failure deadlines, icon settings/fallback, native rendering/transparency, inline-image/frame limits and the installed Xcode icon when available. Local validation passed **28 Swift tests and 6 Python tests**, universal build/package checks and ZIP checksum verification. The local Xcode 27 app icon rendered to a 128 px PNG of **18,606 bytes**, within the duplicate-slot frame budget. This update is packaged for owner installation; the installed 0.1.1 package is intentionally untouched. Visual icon selection and real-host timing after installation still require user confirmation.
