@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.6 — 2026-10-01
+
+- Keep the selected Xcode artwork or hammer in compact completion slots so minimized completion shows the build identity instead of a result symbol.
+- Retain checkmark/xmark and result details in the Sneak Peek; preserve active progress and dismissal timing.
+- Bound the inline image budget for up to three copies in a single frame.
+
 ## 0.1.5 — 2026-10-01
 
 - Remove the settings preview button and use the photo SF Symbol for the Xcode App Icon choice.

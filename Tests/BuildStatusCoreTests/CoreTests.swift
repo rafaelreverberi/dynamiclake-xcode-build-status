@@ -85,7 +85,7 @@ final class CoreTests: XCTestCase {
     func testFailurePayloadKeepsDiagnosticWithoutAutoPresentation() {
         let message = Messages.activity(id:"a",create:false,result:.failed,detail:"Cannot find x",features:[])
         XCTAssertEqual(surfaces(message)["sneakPeek"]?["center"]?["text"] as? String,"Build Failed — Cannot find x")
-        XCTAssertEqual(surfaces(message)["compactLiveActivity"]?["rightSlot"]?["systemImage"] as? String,"xmark")
+        XCTAssertEqual(surfaces(message)["sneakPeek"]?["rightSlot"]?["systemImage"] as? String,"xmark")
         XCTAssertNil(message["presentSneakPeek"])
     }
     func testIconSettingDefaultsAndInvalidValues() {
@@ -105,6 +105,7 @@ final class CoreTests: XCTestCase {
         XCTAssertEqual(Data(base64Encoded:image["base64Data"] as! String),png)
         XCTAssertNil(image["tint"])
         XCTAssertEqual(surfaces(message)["sneakPeek"]?["leftSlot"]?["base64Data"] as? String,image["base64Data"] as? String)
+        XCTAssertEqual(surfaces(message)["compactLiveActivity"]?["rightSlot"]?["base64Data"] as? String,image["base64Data"] as? String)
         XCTAssertLessThan(try Messages.frame(message).count,64_004)
         XCTAssertEqual(Messages.leftImage(style:.hammer,iconPNG:png)["systemImage"] as? String,"hammer.fill")
         png.append(0)
@@ -162,7 +163,8 @@ final class CoreTests: XCTestCase {
         for result in [ResultState.success,.failed] {
             let m = Messages.activity(id:"a",create:false,result:result,detail:"Cannot find x /Users/private/src",duration:10,features:features)
             XCTAssertEqual(m["presentSneakPeek"] as? Double,10)
-            for surface in ["compactLiveActivity", "sneakPeek"] {
+            XCTAssertEqual(surfaces(m)["compactLiveActivity"]?["rightSlot"]?["systemImage"] as? String,"hammer.fill")
+            for surface in ["sneakPeek"] {
                 let right = surfaces(m)[surface]!["rightSlot"]!
                 XCTAssertEqual(right["type"] as? String,"image")
                 XCTAssertEqual(right["source"] as? String,"sfSymbol")
