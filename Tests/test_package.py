@@ -42,11 +42,13 @@ class PackageTests(unittest.TestCase):
             m = copy.deepcopy(self.manifest); m['settings'][2][key] = value
             with self.assertRaises(ValueError): self.validate(m)
 
-    def test_invalid_preview_button(self):
-        for key, value in [('type','image'), ('url','file:///private/icon.png'), ('buttonTitle','')]:
-            m = copy.deepcopy(self.manifest); m['settings'][3][key] = value
-            with self.assertRaises(ValueError): self.validate(m)
-        m = copy.deepcopy(self.manifest); m['settings'][2], m['settings'][3] = m['settings'][3], m['settings'][2]
+    def test_removed_preview_and_photo_option(self):
+        self.assertEqual(len(self.manifest['settings']), 3)
+        self.assertEqual(self.manifest['settings'][2]['options'][1]['systemImage'], 'photo')
+        m = copy.deepcopy(self.manifest)
+        m['settings'].append({'id':'iconPreview','type':'button','title':'Preview','url':'https://example.com'})
+        with self.assertRaises(ValueError): self.validate(m)
+        m = copy.deepcopy(self.manifest); m['settings'][2]['options'][1]['systemImage'] = 'app.fill'
         with self.assertRaises(ValueError): self.validate(m)
 
     def test_changelog_required(self):

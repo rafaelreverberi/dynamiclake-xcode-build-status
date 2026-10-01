@@ -22,7 +22,7 @@ public enum Messages {
         var right: [String: Any] = ["type": "progress", "tint": "blue"]
         var text = value == nil ? "Building" : "Building — Estimated Progress"
         if result == .success || result == .failed {
-            right = ["type": "status", "status": result!.rawValue, "tint": result == .success ? "green" : "red"]
+            right = ["type": "image", "source": "sfSymbol", "systemImage": result == .success ? "checkmark" : "xmark", "tint": result == .success ? "green" : "red"]
             text = result == .success ? "Build Succeeded" : "Build Failed"
             let safe = sanitizeError(detail)
             if result == .failed && !safe.isEmpty { text += " — " + safe }

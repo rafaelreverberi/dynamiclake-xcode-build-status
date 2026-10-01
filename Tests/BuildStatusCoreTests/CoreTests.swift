@@ -85,7 +85,7 @@ final class CoreTests: XCTestCase {
     func testFailurePayloadKeepsDiagnosticWithoutAutoPresentation() {
         let message = Messages.activity(id:"a",create:false,result:.failed,detail:"Cannot find x",features:[])
         XCTAssertEqual(surfaces(message)["sneakPeek"]?["center"]?["text"] as? String,"Build Failed — Cannot find x")
-        XCTAssertEqual(surfaces(message)["compactLiveActivity"]?["rightSlot"]?["status"] as? String,"failed")
+        XCTAssertEqual(surfaces(message)["compactLiveActivity"]?["rightSlot"]?["systemImage"] as? String,"xmark")
         XCTAssertNil(message["presentSneakPeek"])
     }
     func testIconSettingDefaultsAndInvalidValues() {
@@ -162,7 +162,14 @@ final class CoreTests: XCTestCase {
         for result in [ResultState.success,.failed] {
             let m = Messages.activity(id:"a",create:false,result:result,detail:"Cannot find x /Users/private/src",duration:10,features:features)
             XCTAssertEqual(m["presentSneakPeek"] as? Double,10)
-            XCTAssertEqual(surfaces(m)["compactLiveActivity"]?["rightSlot"]?["status"] as? String,result.rawValue)
+            for surface in ["compactLiveActivity", "sneakPeek"] {
+                let right = surfaces(m)[surface]!["rightSlot"]!
+                XCTAssertEqual(right["type"] as? String,"image")
+                XCTAssertEqual(right["source"] as? String,"sfSymbol")
+                XCTAssertEqual(right["systemImage"] as? String,result == .success ? "checkmark" : "xmark")
+                XCTAssertEqual(right["tint"] as? String,result == .success ? "green" : "red")
+                XCTAssertNil(right["status"])
+            }
             XCTAssertFalse(String(data:try JSONSerialization.data(withJSONObject:m),encoding:.utf8)!.contains("/Users"))
             XCTAssertNil(Messages.activity(id:"a",create:false,result:result)["presentSneakPeek"])
         }

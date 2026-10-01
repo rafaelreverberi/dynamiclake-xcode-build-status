@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5 — 2026-10-01
+
+- Remove the settings preview button and use the photo SF Symbol for the Xcode App Icon choice.
+- Show plain green checkmark / red xmark SF Symbols for completion in both compact and Sneak Peek slots, without status circles.
+
 ## 0.1.4 — 2026-10-01
 
 - Fix the observed generic executable icon by sending the supplied artwork as explicit inline PNG data in both slots.

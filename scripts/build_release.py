@@ -37,8 +37,8 @@ def validate_manifest(data: bytes, changelog: str) -> dict:
     require(m.get('executable') == 'xcode-build-status' and m.get('icon') == 'icon.png', 'Unexpected package paths')
     require(m.get('arguments') == [] and m.get('autoStart') is True, 'Invalid launch configuration')
     settings = m.get('settings', [])
-    require(len(settings) == 4, 'Three controls and one preview button are required')
-    require({s.get('id') for s in settings} == {'successDisplaySeconds', 'failureDisplaySeconds', 'iconStyle', 'iconPreview'}, 'Unexpected settings')
+    require(len(settings) == 3, 'Exactly three settings are required')
+    require({s.get('id') for s in settings} == {'successDisplaySeconds', 'failureDisplaySeconds', 'iconStyle'}, 'Unexpected settings')
     for key, default, tint in [('successDisplaySeconds', 3, 'green'), ('failureDisplaySeconds', 5, 'red')]:
         s = next(s for s in settings if s['id'] == key)
         require(s.get('type') == 'slider' and s.get('min') == 1 and s.get('max') == 10 and s.get('step') == 1 and s.get('default') == default and s.get('suffix') == 'sec', f'Invalid slider: {key}')
@@ -46,11 +46,7 @@ def validate_manifest(data: bytes, changelog: str) -> dict:
     icon = next(s for s in settings if s['id'] == 'iconStyle')
     require(icon.get('type') == 'select' and icon.get('default') == 'Hammer (SF Symbol)', 'Invalid icon selector')
     require(icon.get('options') == [{'title': 'Hammer (SF Symbol)', 'systemImage': 'hammer.fill'},
-                                   {'title': 'Xcode App Icon', 'systemImage': 'app.fill'}], 'Invalid icon choices')
-    preview = settings[3]
-    require(preview.get('id') == 'iconPreview' and preview.get('type') == 'button' and
-            preview.get('buttonTitle') == 'Preview Icon', 'Invalid preview button')
-    require(preview.get('url') == f'https://raw.githubusercontent.com/rafaelreverberi/dynamiclake-xcode-build-status/v{version}/XcodeBuildStatus.dynamiclakeplugin/icon.png', 'Invalid versioned preview URL')
+                                   {'title': 'Xcode App Icon', 'systemImage': 'photo'}], 'Invalid icon choices')
     return m
 
 
