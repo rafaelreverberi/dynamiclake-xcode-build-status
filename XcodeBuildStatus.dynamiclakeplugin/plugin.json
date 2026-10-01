@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "identifier": "com.dynamiclake.plugins.xcode-build-status",
   "name": "Xcode Build Status",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "developerName": "Rafael Reverberi",
   "executable": "xcode-build-status",
   "arguments": [],
@@ -53,6 +53,16 @@
         }
       ],
       "default": "Hammer (SF Symbol)"
+    },
+    {
+      "id": "iconPreview",
+      "type": "button",
+      "title": "Xcode Icon Preview",
+      "description": "Open the supplied Liquid Glass icon preview in your browser.",
+      "buttonTitle": "Preview Icon",
+      "systemImage": "photo",
+      "tint": "blue",
+      "url": "https://raw.githubusercontent.com/rafaelreverberi/dynamiclake-xcode-build-status/v0.1.4/XcodeBuildStatus.dynamiclakeplugin/icon.png"
     }
   ]
 }

@@ -11,3 +11,6 @@ if __name__ == '__main__':
     subprocess.run(['/usr/bin/sips', '-s', 'format', 'png', '-z', '512', '512',
                     str(ROOT / 'assets/xcode-liquid-glass.icns'), '--out',
                     str(ROOT / 'XcodeBuildStatus.dynamiclakeplugin/icon.png')], check=True)
+    subprocess.run(['/usr/bin/sips', '-s', 'format', 'png', '-z', '128', '128',
+                    str(ROOT / 'XcodeBuildStatus.dynamiclakeplugin/icon.png'), '--out',
+                    str(ROOT / 'XcodeBuildStatus.dynamiclakeplugin/xcode-icon.png')], check=True)

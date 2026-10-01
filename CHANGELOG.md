@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 — 2026-10-01
+
+- Fix the observed generic executable icon by sending the supplied artwork as explicit inline PNG data in both slots.
+- Add a Preview Icon button directly below Build Icon; native settings do not support embedded image rows.
+- Load the bounded 128 px PNG once relative to the executable, independent of the host working directory.
+
 ## 0.1.3 — 2026-10-01
 
 - Use the owner-supplied Liquid Glass Xcode icon as the plugin title image.

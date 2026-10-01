@@ -95,14 +95,22 @@ final class CoreTests: XCTestCase {
             XCTAssertEqual(Settings(values:["iconStyle":invalid]).iconStyle,.hammer)
         }
     }
-    func testSuppliedPackageIconUsedInBothSlots() throws {
-        let message = Messages.activity(id:"a",create:true,result:.failed,detail:"Cannot find x",iconStyle:.xcode)
+    func testSuppliedPNGUsedInBothSlotsAndFrameBudget() throws {
+        var png = Data([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a])
+        png.append(Data(repeating:0,count:Messages.maximumIconBytes-png.count))
+        let message = Messages.activity(id:"a",create:true,result:.failed,detail:String(repeating:"x",count:160),iconStyle:.xcode,iconPNG:png)
         let image = surfaces(message)["compactLiveActivity"]!["leftSlot"]!
-        XCTAssertEqual(image["source"] as? String,"appIcon")
-        XCTAssertNil(image["tint"]); XCTAssertNil(image["base64Data"])
-        XCTAssertEqual(surfaces(message)["sneakPeek"]?["leftSlot"]?["source"] as? String,"appIcon")
-        XCTAssertLessThan(try Messages.frame(message).count,2_000)
-        XCTAssertEqual(Messages.leftImage(style:.hammer)["systemImage"] as? String,"hammer.fill")
+        XCTAssertEqual(image["source"] as? String,"inlineData")
+        XCTAssertEqual(image["mimeType"] as? String,"image/png")
+        XCTAssertEqual(Data(base64Encoded:image["base64Data"] as! String),png)
+        XCTAssertNil(image["tint"])
+        XCTAssertEqual(surfaces(message)["sneakPeek"]?["leftSlot"]?["base64Data"] as? String,image["base64Data"] as? String)
+        XCTAssertLessThan(try Messages.frame(message).count,64_004)
+        XCTAssertEqual(Messages.leftImage(style:.hammer,iconPNG:png)["systemImage"] as? String,"hammer.fill")
+        png.append(0)
+        XCTAssertEqual(Messages.leftImage(style:.xcode,iconPNG:png)["source"] as? String,"sfSymbol")
+        XCTAssertEqual(Messages.leftImage(style:.xcode)["source"] as? String,"sfSymbol")
+        XCTAssertEqual(Messages.leftImage(style:.xcode,iconPNG:Data("bad".utf8))["source"] as? String,"sfSymbol")
     }
     func testRapidBuildPrecedesPreviousCompletion() {
         var m = BuildMachine(launched:90); _ = m.begin(now:100,bucket:"a",estimate:nil)

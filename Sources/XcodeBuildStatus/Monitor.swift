@@ -25,6 +25,12 @@ final class Monitor {
     private let client: SocketClient
     private let launched = Date().timeIntervalSince1970
     private let history = HistoryStore()
+    private lazy var iconPNG: Data? = {
+        let executable = Bundle.main.executableURL ?? URL(fileURLWithPath: CommandLine.arguments[0])
+        let data = packagedIcon(executableURL: executable)
+        if data == nil { diagnostic("Packaged Xcode icon unavailable; using the hammer symbol.") }
+        return data
+    }()
     private let features = Messages.features(ProcessInfo.processInfo.environment["DYNAMICLAKE_PLUGIN_FEATURES"])
     private var projects: [String: Project] = [:]
     private var watcher: FileEvents?
@@ -238,7 +244,7 @@ final class Monitor {
         p.lastProgressAt = now
         let duration = p.machine.completed == .failed ? settings.failure : settings.success
         client.send(Messages.activity(id: p.id, create: !p.published, result: p.machine.completed, value: value,
-                                     detail: p.machine.detail, duration: duration, features: completion ? features : [], iconStyle: settings.iconStyle))
+                                     detail: p.machine.detail, duration: duration, features: completion ? features : [], iconStyle: settings.iconStyle, iconPNG: settings.iconStyle == .xcode ? iconPNG : nil))
         p.published = true; p.signature = signature
     }
     private func scheduleTimer() {

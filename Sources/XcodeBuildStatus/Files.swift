@@ -128,3 +128,11 @@ final class SettingsEvents {
     }
     deinit { parent?.cancel(); file?.cancel() }
 }
+
+/// Resolve against the executable rather than the host working directory. Read at most once per session.
+func packagedIcon(executableURL: URL) -> Data? {
+    let url = executableURL.resolvingSymlinksInPath().deletingLastPathComponent().appendingPathComponent("xcode-icon.png")
+    guard let data = try? boundedRead(url, limit: Messages.maximumIconBytes),
+          data.starts(with: [0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]) else { return nil }
+    return data
+}

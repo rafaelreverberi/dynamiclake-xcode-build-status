@@ -15,7 +15,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / 'XcodeBuildStatus.dynamiclakeplugin'
-EXPECTED_FILES = {'plugin.json', 'icon.png', 'xcode-build-status'}
+EXPECTED_FILES = {'plugin.json', 'icon.png', 'xcode-icon.png', 'xcode-build-status'}
 LIMITS = {'archive': 7_000_000, 'package': 20_000_000, 'manifest': 128_000, 'icon': 1_500_000}
 
 
@@ -37,8 +37,8 @@ def validate_manifest(data: bytes, changelog: str) -> dict:
     require(m.get('executable') == 'xcode-build-status' and m.get('icon') == 'icon.png', 'Unexpected package paths')
     require(m.get('arguments') == [] and m.get('autoStart') is True, 'Invalid launch configuration')
     settings = m.get('settings', [])
-    require(len(settings) == 3, 'Exactly three settings are required')
-    require({s.get('id') for s in settings} == {'successDisplaySeconds', 'failureDisplaySeconds', 'iconStyle'}, 'Unexpected settings')
+    require(len(settings) == 4, 'Three controls and one preview button are required')
+    require({s.get('id') for s in settings} == {'successDisplaySeconds', 'failureDisplaySeconds', 'iconStyle', 'iconPreview'}, 'Unexpected settings')
     for key, default, tint in [('successDisplaySeconds', 3, 'green'), ('failureDisplaySeconds', 5, 'red')]:
         s = next(s for s in settings if s['id'] == key)
         require(s.get('type') == 'slider' and s.get('min') == 1 and s.get('max') == 10 and s.get('step') == 1 and s.get('default') == default and s.get('suffix') == 'sec', f'Invalid slider: {key}')
@@ -47,6 +47,10 @@ def validate_manifest(data: bytes, changelog: str) -> dict:
     require(icon.get('type') == 'select' and icon.get('default') == 'Hammer (SF Symbol)', 'Invalid icon selector')
     require(icon.get('options') == [{'title': 'Hammer (SF Symbol)', 'systemImage': 'hammer.fill'},
                                    {'title': 'Xcode App Icon', 'systemImage': 'app.fill'}], 'Invalid icon choices')
+    preview = settings[3]
+    require(preview.get('id') == 'iconPreview' and preview.get('type') == 'button' and
+            preview.get('buttonTitle') == 'Preview Icon', 'Invalid preview button')
+    require(preview.get('url') == f'https://raw.githubusercontent.com/rafaelreverberi/dynamiclake-xcode-build-status/v{version}/XcodeBuildStatus.dynamiclakeplugin/icon.png', 'Invalid versioned preview URL')
     return m
 
 
@@ -61,6 +65,10 @@ def validate_package(package: Path, changelog: str) -> dict:
     icon = (package / m['icon']).read_bytes()
     require(len(icon) <= LIMITS['icon'] and icon.startswith(b'\x89PNG\r\n\x1a\n') and icon[12:16] == b'IHDR', 'Invalid PNG icon')
     require(struct.unpack('>II', icon[16:24]) == (512, 512), 'Icon must be 512 x 512')
+    runtime_icon = (package / 'xcode-icon.png').read_bytes()
+    require(len(runtime_icon) <= 20_000 and runtime_icon.startswith(b'\x89PNG\r\n\x1a\n') and
+            runtime_icon[12:16] == b'IHDR' and struct.unpack('>II', runtime_icon[16:24]) == (128, 128),
+            'Invalid or oversized runtime icon')
     return m
 
 
